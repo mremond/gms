@@ -5,6 +5,7 @@ import (
 	"encoding/binary"
 )
 
+// EncodeString encodes a null terminated string.
 func EncodeString(str string, nullTerminated bool) []byte {
 	if !nullTerminated {
 		length := make([]byte, 2)
@@ -30,6 +31,7 @@ func ReadString(buffer Reader) (string, error) {
 	return result.String(), nil
 }
 
+// ReadUint8 reads uint8 from buffer.
 func ReadUint8(buffer Reader) (uint8, error) {
 	data, err := buffer.Read(1)
 	if err != nil {
@@ -38,6 +40,7 @@ func ReadUint8(buffer Reader) (uint8, error) {
 	return uint8(data[0]), err
 }
 
+// ReadUint16 reads uint16 from buffer.
 func ReadUint16(buffer Reader) (uint16, error) {
 	data, err := buffer.Read(2)
 	if err != nil {
@@ -46,6 +49,7 @@ func ReadUint16(buffer Reader) (uint16, error) {
 	return binary.LittleEndian.Uint16(data), err
 }
 
+// ReadUint32 reads uint32 from buffer.
 func ReadUint32(buffer Reader) (uint32, error) {
 	data, err := buffer.Read(4)
 	if err != nil {

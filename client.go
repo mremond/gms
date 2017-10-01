@@ -14,6 +14,8 @@ import (
 type UUID [16]byte
 
 // TODO review naming between name and index
+
+// Client represents a client connection in the GameMaker library.
 type Client struct {
 	Id    UUID
 	Index int

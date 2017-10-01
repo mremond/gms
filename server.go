@@ -8,7 +8,7 @@ import (
 	"net"
 )
 
-// Magic numbers for GameMaker Studio 2
+// Magic numbers for GameMaker Studio 2 non-raw protocol.
 const (
 	gmInit         = "GM:Studio-Connect"
 	gmHeaderLen    = 12
@@ -19,6 +19,7 @@ const (
 	gmMagicNumber5 = uint32(0x0000000c)
 )
 
+// Server is use to start a service to handle GameMaker client connections.
 type Server struct {
 	Raw       bool
 	Port      int
@@ -26,6 +27,7 @@ type Server struct {
 	nextIndex int
 }
 
+// Start GameMaker server on given port and handle event and data with provided handler.
 func (s Server) Start(port int, cb func(Message) error) {
 	listenTo := fmt.Sprintf(":%d", port)
 	log.Printf("Launching server on port %d", port)
@@ -119,10 +121,13 @@ func readRawStream(c Client, cb func(Message) error) error {
 	return cb(Message{Client: c, EventType: ClientData, DataType: int(msgType[0]), Buffer: &buffer})
 }
 
+// Reader abstracts the different GameMaker protocol and use the same interface for both.
 type Reader interface {
 	Read(byteCount int) ([]byte, error)
 }
 
+// EventType is used to flag event with one of the possible type: Client Connection, Client disconnection
+// or Data received from client.
 type EventType int
 
 const (
@@ -131,6 +136,7 @@ const (
 	ClientData
 )
 
+// Message is the structure received by the high level server implementation.
 type Message struct {
 	Client    Client
 	EventType EventType
@@ -141,12 +147,15 @@ type Message struct {
 //=============================================================================
 // GM Protocol
 
+// Packet implements GameMaker protocol.
 type Packet struct {
 	payload []byte
 	// Message store read position to act as a reader
 	readPos int
 }
 
+// Read implements buffer reader interface to abstract reading data from the
+// GM protocol.
 func (p *Packet) Read(byteCount int) ([]byte, error) {
 	startPos := p.readPos
 	nextPos := startPos + byteCount
@@ -160,10 +169,13 @@ func (p *Packet) Read(byteCount int) ([]byte, error) {
 //=============================================================================
 // Raw protocol
 
+// Stream implements raw protocol.
 type Stream struct {
 	buffer io.Reader
 }
 
+// Read implements buffer reader interface to abstract reading data from the
+// raw protocol.
 func (s *Stream) Read(byteCount int) ([]byte, error) {
 	data := make([]byte, byteCount)
 	if _, err := io.ReadFull(s.buffer, data); err != nil {
